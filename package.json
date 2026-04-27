@@ -1,0 +1,13 @@
+{
+    "name": "tdlib-client",
+    "version": "0.1.0",
+    "type": "module",
+    "scripts": {
+        "format": "oxfmt",
+        "format:check": "oxfmt --check"
+    },
+    "devDependencies": {
+        "oxfmt": "^0.47.0"
+    },
+    "packageManager": "pnpm@10.33.0"
+}
