@@ -12,6 +12,8 @@ import {
 } from "./tokens/builtin-definition.js";
 import {
     DocTagCommentStartToken,
+    DocClassTagToken,
+    DocDescriptionTagToken,
     DocTagCommentToken,
     DocTextCommentToken,
     DocTagCommentWhitespaceToken,
@@ -42,6 +44,8 @@ export const allTlTokens: TokenType[] = [
     BuiltinBoolTrueDefinitionToken,
     BuiltinVectorDefinitionToken,
     DocTagCommentStartToken,
+    DocClassTagToken,
+    DocDescriptionTagToken,
     DocTagCommentToken,
     DocTextCommentToken,
     DocTagCommentWhitespaceToken,
@@ -85,6 +89,8 @@ export const TlLexer = new Lexer({
         docTagComment: [
             DocTagCommentWhitespaceToken,
             DocTagCommentLineBreakToken,
+            DocClassTagToken,
+            DocDescriptionTagToken,
             DocTagCommentToken,
             DocTextCommentToken,
         ],

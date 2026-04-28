@@ -12,10 +12,19 @@ export const DocTagCommentToken = createToken({
     pattern: /@[A-Za-z_][A-Za-z0-9_]*/,
 });
 
+export const DocClassTagToken = createToken({
+    name: "DocClassTag",
+    pattern: /@class/,
+});
+
+export const DocDescriptionTagToken = createToken({
+    name: "DocDescriptionTag",
+    pattern: /@description/,
+});
+
 export const DocTextCommentToken = createToken({
     name: "DocTextComment",
-    pattern: /[^\r\n]+/,
-    pop_mode: true,
+    pattern: /(?:[^\r\n@]|@(?![A-Za-z_][A-Za-z0-9_]*))+/,
 });
 
 export const DocTagCommentWhitespaceToken = createToken({
