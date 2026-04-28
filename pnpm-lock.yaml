@@ -20,6 +20,9 @@ importers:
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
 
 packages:
 
@@ -184,6 +187,9 @@ packages:
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
 
+  zod@4.3.6:
+    resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
+
 snapshots:
 
   '@chevrotain/cst-dts-gen@12.0.0':
@@ -299,3 +305,5 @@ snapshots:
   typescript@6.0.3: {}
 
   undici-types@7.16.0: {}
+
+  zod@4.3.6: {}
