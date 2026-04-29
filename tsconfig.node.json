@@ -15,7 +15,6 @@
 
         "strict": true,
         "noUncheckedIndexedAccess": true,
-        "noPropertyAccessFromIndexSignature": true,
         "exactOptionalPropertyTypes": true,
 
         "noImplicitOverride": true,
