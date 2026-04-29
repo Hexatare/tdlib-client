@@ -3,8 +3,6 @@ import { cstNodes } from "../utils/cst-nodes.js";
 import { findFieldDocTag } from "../utils/find-field-doc-tag.js";
 import { getFirstCstOptional } from "../utils/get-first-cst-optional.js";
 import { getFirstCstRequired } from "../utils/get-first-cst-required.js";
-import { isClass } from "../utils/is-class.js";
-import { isDeclaration } from "../utils/is-declaration.js";
 import { joinCommentText } from "../utils/join-comment-text.js";
 import { parseDeclarationSection } from "../utils/parse-declaration-section.js";
 import { parseDocComment } from "../utils/parse-doc-comment.js";
@@ -21,13 +19,13 @@ import { tokenNodes } from "../utils/token-nodes.js";
 import { emptyDeclarationSection } from "../config/empty-declaration-section.js";
 import type { TlClass } from "../models/class.js";
 import type { TlDeclaration } from "../models/declaration.js";
+import type { DeclarationSection } from "../models/declaration-section.js";
 import type { TlDocTag } from "../models/doc-tag.js";
+import type { DocComment } from "../models/doc-comment.js";
 import type { TlField } from "../models/field.js";
 import type { TlSchema } from "../models/schema.js";
 import type { TlType } from "../models/type.js";
-import type { CstChildren } from "../types/cst-children.js";
-import type { DeclarationSection } from "../models/declaration-section.js";
-import type { DocComment } from "../models/doc-comment.js";
+import type { CstChildrenDictionary } from "chevrotain";
 
 export class TlAstVisitor extends BaseTlVisitor {
     public constructor() {
@@ -41,7 +39,7 @@ export class TlAstVisitor extends BaseTlVisitor {
      * `TlSchema` is the full AST used by code generation. It contains class metadata,
      * constructor/type declarations, and function declarations in separate arrays.
      */
-    public schema(ctx: CstChildren): TlSchema {
+    public schema(ctx: CstChildrenDictionary): TlSchema {
         const typeDefinitionNodes = cstNodes(ctx, "typeDefinitions");
         const functionDefinitionNodes = cstNodes(ctx, "functionDefinitions");
 
@@ -83,14 +81,14 @@ export class TlAstVisitor extends BaseTlVisitor {
      * A declaration section is an internal grouping with two arrays: `classes` for
      * `@class` metadata comments and `declarations` for constructor declarations.
      */
-    public typeDefinitions(ctx: CstChildren): DeclarationSection {
+    public typeDefinitions(ctx: CstChildrenDictionary): DeclarationSection {
         return this.collectDeclarationSection(ctx);
     }
 
     /**
      * Converts the functions section after `---functions---` into a declaration section.
      */
-    public functionDefinitions(ctx: CstChildren): DeclarationSection {
+    public functionDefinitions(ctx: CstChildrenDictionary): DeclarationSection {
         return this.collectDeclarationSection(ctx);
     }
 
@@ -100,7 +98,7 @@ export class TlAstVisitor extends BaseTlVisitor {
      * Class metadata becomes `TlClass`. A documented constructor/function becomes
      * `TlDeclaration`, including its description, fields, result type, and doc tags.
      */
-    public schemaItem(ctx: CstChildren): TlClass | TlDeclaration {
+    public schemaItem(ctx: CstChildrenDictionary): TlClass | TlDeclaration {
         const classCommentNodes = cstNodes(ctx, "classComment");
         const declarationWithDocsNodes = cstNodes(ctx, "declarationWithDocs");
 
@@ -132,7 +130,7 @@ export class TlAstVisitor extends BaseTlVisitor {
      * The returned `TlClass` describes a result type group, such as `AuthorizationState`,
      * and stores the class name plus its documentation text.
      */
-    public classComment(ctx: CstChildren): TlClass {
+    public classComment(ctx: CstChildrenDictionary): TlClass {
         /* Get the name of the class and the description */
 
         const classNameTokens = tokenNodes(ctx, "className");
@@ -174,7 +172,7 @@ export class TlAstVisitor extends BaseTlVisitor {
      * the raw TL declaration with the leading `@description`, attaches all extra doc tags,
      * and copies matching field doc text into each `TlField.description`.
      */
-    public declarationWithDocs(ctx: CstChildren): TlDeclaration {
+    public declarationWithDocs(ctx: CstChildrenDictionary): TlDeclaration {
         const descriptionCommentNodes = cstNodes(ctx, "descriptionComment");
         const declarationNodes = cstNodes(ctx, "declaration");
 
@@ -235,7 +233,7 @@ export class TlAstVisitor extends BaseTlVisitor {
      * `DocComment` is an internal object with only `description`; it exists so the
      * declaration-level description can be validated before it is merged into `TlDeclaration`.
      */
-    public descriptionComment(ctx: CstChildren): DocComment {
+    public descriptionComment(ctx: CstChildrenDictionary): DocComment {
         const docTextCommentTokens = tokenNodes(ctx, "DocTextComment");
         const docTextCommentToken = docTextCommentTokens[0];
 
@@ -269,7 +267,7 @@ export class TlAstVisitor extends BaseTlVisitor {
      * The returned `TlDocTag` stores the tag name without `@` and the full text for that
      * tag. For example, `@message Error message` becomes `{ tag: "message", text: "Error message" }`.
      */
-    public fieldDocComment(ctx: CstChildren): TlDocTag {
+    public fieldDocComment(ctx: CstChildrenDictionary): TlDocTag {
         const docTagCommentTokens = tokenNodes(ctx, "DocTagComment");
         const docTextCommentTokens = tokenNodes(ctx, "DocTextComment");
 
@@ -307,7 +305,7 @@ export class TlAstVisitor extends BaseTlVisitor {
      *
      * These strings are appended to the previous class, description, or field doc text.
      */
-    public docContinuations(ctx: CstChildren): string[] {
+    public docContinuations(ctx: CstChildrenDictionary): string[] {
         const docContinuationCommentTokens = tokenNodes(ctx, "DocContinuationComment");
 
         const docContinuations = docContinuationCommentTokens.map((token) => {
@@ -328,7 +326,7 @@ export class TlAstVisitor extends BaseTlVisitor {
      * result type, and empty documentation placeholders. `declarationWithDocs` fills in
      * the description and doc tags afterward.
      */
-    public declaration(ctx: CstChildren): TlDeclaration {
+    public declaration(ctx: CstChildrenDictionary): TlDeclaration {
         /* Get the name of the declaration */
 
         const nameTokens = tokenNodes(ctx, "name");
@@ -376,7 +374,7 @@ export class TlAstVisitor extends BaseTlVisitor {
      * The returned `TlField` contains the field name and parsed TL type. Its description
      * starts empty here and is filled from matching field doc tags later.
      */
-    public field(ctx: CstChildren): TlField {
+    public field(ctx: CstChildrenDictionary): TlField {
         /* Get the name of the fueld */
 
         const nameTokens = tokenNodes(ctx, "name");
@@ -410,7 +408,7 @@ export class TlAstVisitor extends BaseTlVisitor {
      * A named type is a plain reference such as `string` or `Message`. A generic type is
      * a wrapper such as `vector<Message>` with the argument stored as another `TlType`.
      */
-    public typeExpression(ctx: CstChildren): TlType {
+    public typeExpression(ctx: CstChildrenDictionary): TlType {
         /* Get the name of the type expression */
 
         const nameTokens = tokenNodes(ctx, "name");
@@ -455,26 +453,50 @@ export class TlAstVisitor extends BaseTlVisitor {
      * the constructors section or the functions section. It keeps `TlClass` metadata apart
      * from `TlDeclaration` objects so `schema` can assemble the final `TlSchema`.
      */
-    private collectDeclarationSection(ctx: CstChildren): DeclarationSection {
+    private collectDeclarationSection(ctx: CstChildrenDictionary): DeclarationSection {
         const schemaItemNodes = cstNodes(ctx, "schemaItem");
+        const classes: TlClass[] = [];
+        const declarations: TlDeclaration[] = [];
 
-        const items = schemaItemNodes.map((schemaItemNode) => {
-            const visitedSchemaItem = this.visit(schemaItemNode);
+        for (const schemaItemNode of schemaItemNodes) {
+            const schemaItemChildren = schemaItemNode.children;
 
-            if (isClass(visitedSchemaItem)) {
-                const declaration = parseTlClass(visitedSchemaItem);
-                return declaration;
+            const classCommentNodes = cstNodes(schemaItemChildren, "classComment");
+            const declarationWithDocsNodes = cstNodes(schemaItemChildren, "declarationWithDocs");
+
+            const classCommentNode = getFirstCstOptional(classCommentNodes);
+            const declarationWithDocsNode = getFirstCstOptional(declarationWithDocsNodes);
+
+            /* If it is a class comment node, add it to the array */
+
+            if (classCommentNode) {
+                const visitedClassComment = this.visit(classCommentNode);
+                const tlClass = parseTlClass(visitedClassComment);
+
+                classes.push(tlClass);
+                continue;
             }
 
-            const declaration = parseTlDeclaration(visitedSchemaItem);
-            return declaration;
-        });
+            /* If it is a declaration doc node, push it */
+
+            if (declarationWithDocsNode) {
+                const visitedDeclaration = this.visit(declarationWithDocsNode);
+                const declaration = parseTlDeclaration(visitedDeclaration);
+
+                declarations.push(declaration);
+                continue;
+            }
+
+            throw new Error(
+                "Expected either a 'classCommentNode' or 'declarationWithDocsNode' but received neither.",
+            );
+        }
 
         /* Create the final declaration section object */
 
         const declarationSection = {
-            classes: items.filter(isClass),
-            declarations: items.filter(isDeclaration),
+            classes,
+            declarations,
         };
 
         const parsedDeclarationSection = parseDeclarationSection(declarationSection);

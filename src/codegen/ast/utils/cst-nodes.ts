@@ -1,6 +1,10 @@
+import { isCstNode } from "./is-cst-node.js";
 import type { CstNode } from "chevrotain";
-import type { CstChildren } from "../types/cst-children.js";
+import type { CstChildrenDictionary } from "chevrotain";
 
-export function cstNodes(ctx: CstChildren, key: string): CstNode[] {
-    return (ctx[key] ?? []) as CstNode[];
+export function cstNodes(ctx: CstChildrenDictionary, key: string): CstNode[] {
+    const children = ctx[key] ?? [];
+    const nodes = children.filter(isCstNode);
+
+    return nodes;
 }
