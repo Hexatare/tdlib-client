@@ -1,5 +1,6 @@
 import { BaseTlVisitor } from "./base-tl-visitor.js";
 import { cstNodes } from "../utils/cst-nodes.js";
+import { findFieldDocTag } from "../utils/find-field-doc-tag.js";
 import { getFirstCstOptional } from "../utils/get-first-cst-optional.js";
 import { getFirstCstRequired } from "../utils/get-first-cst-required.js";
 import { isClass } from "../utils/is-class.js";
@@ -202,7 +203,7 @@ export class TlAstVisitor extends BaseTlVisitor {
         /* Loop over all the fields of the declaration */
 
         const fields = declaration.fields.map((field) => {
-            const fieldDoc = docTags.find((docTag) => docTag.tag === field.name);
+            const fieldDoc = findFieldDocTag(docTags, field);
 
             if (!fieldDoc) {
                 throw new Error(`Could not find the doc string for the field: ${field.name}`);
