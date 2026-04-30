@@ -13,7 +13,7 @@ export function generateTranslatedType(parsedType: TlType): string {
             case "int53":
                 return "number";
             case "int64":
-                return "bigint";
+                return "string";
             case "bytes":
                 return "Uint8Array";
             case "Bool":
